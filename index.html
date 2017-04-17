@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Vue Weather</title>
+	<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="main" id="main">
+	<h1 class="city">{{ currentCity }} <span class="temp"> {{ currentTemp }} </span></h1>
+
+	<div class="main__search">
+		<p>
+			<input type="text" id="search" v-model.lazy="searchCity"  v-on:change="addCity"/>
+		</p>
+		<select name="select" id="select" v-model="select" v-on:change="getCoords">
+			<option v-for="option in options" v-bind:value="option.value">{{ option.text }}</option>
+		</select>
+	</div>
+</div>	
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.2.6/vue.min.js"></script>
+<script src="https://unpkg.com/vuex"></script>
+<script src="index.js"></script>
+</body>
+</html>
