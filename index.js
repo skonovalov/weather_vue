@@ -1,41 +1,64 @@
+console.time('loading');
 var store = new Vuex.Store({
 	state: {
 		currentCity: '',
 		currentTemp: '',
-		searchCity: '',
-		select: '',
+		options: [{
+			text: 'Choose city or add new',
+			value: ''
+		}]
 	},
-	mutations: {}
+	mutations: {
+		setCurrentCity: function(state, payload) {
+			state.currentCity = payload.value;
+		},
+		setCurrentTemp: function(state, payload) {
+			state.currentTemp = Math.round(payload.value);
+		},
+		addCity: function(state, payload) {
+			state.options.push({
+				text: payload.text,
+				value: payload.value
+			});
+		}
+	}
 });
 
 var vm = new Vue({
 	el: '#main',
 	store: store,
 	data: {
-		currentCity: '',
-		currentTemp: '',
 		searchCity: '',
-		select: '',
-		options: [{
-			text: 'Добавьте или выберите город',
-			value: ''
-		}]
+		select: ''
+	},
+	computed: {
+		currentCity: function() {
+			return store.state.currentCity;
+		},
+		currentTemp: function() {
+			return store.state.currentTemp;
+		},
+		options: function() {
+			return store.state.options;
+		}
 	},
 	methods: {
-		setCurrentCity: function(val) {
-			this.currentCity = val;
-		},
-		setCurrentTemp: function(val) {
-			this.currentTemp = Math.round(val);
-		},
 		getlocation: function() {
-			console.log(this.$store.state.currentCity);
+			var cities;
+
 			if (navigator.geolocation) {
 			    navigator.geolocation.getCurrentPosition(this.getWeather);
 			}
 
 			if (localStorage.cities) {
-				this.options = JSON.parse(localStorage.cities);
+				cities = JSON.parse(localStorage.cities);
+
+				for (var prop in cities) {
+					store.commit('addCity', {
+						text: cities[prop].text,
+						value: cities[prop].value
+					});
+				}
 			} 
 		},
 		getWeather: function(position) {
@@ -48,8 +71,9 @@ var vm = new Vue({
 			document.head.appendChild(script);
 		},
 		cb: function(res) {
-			this.setCurrentCity(res.name);
-			this.setCurrentTemp(res.main.temp);
+			store.commit('setCurrentCity', {value: res.name});
+			store.commit('setCurrentTemp', {value: res.main.temp});
+
 			var script = document.getElementById('cbGetWeather');
 			document.head.removeChild(script);
 		},
@@ -57,7 +81,7 @@ var vm = new Vue({
 			var exists = false;
 			var that   = this;
 
-			this.options.filter(function(item, index) {
+			store.state.options.filter(function(item, index) {
 				if (item.text.toLowerCase() === that.searchCity.toLowerCase()) exists = true;
 			});
 
@@ -69,13 +93,15 @@ var vm = new Vue({
 			}
 		},
 		getCity: function(res) {
-			this.options.push({
-				text: res.name, 
-				value: res.coord.lat + "&" + res.coord.lon,
-			});
+			store.commit('addCity', {
+						text: res.name,
+						value: res.coord.lat + "&" + res.coord.lon
+					});
+
 			this.searchCity = '';
 			
 			localStorage.setItem('cities', JSON.stringify(this.options));
+
 			var script = document.getElementById('cbAddCity');
 			document.head.removeChild(script);
 		},
@@ -93,3 +119,4 @@ var vm = new Vue({
 });
 
 window.onload = vm.getlocation();
+console.timeEnd('loading');
