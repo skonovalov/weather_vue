@@ -18,6 +18,9 @@
     "html-webpack-plugin": "^2.28.0",
     "vue": "^2.2.6",
     "vue-loader": "^11.3.4",
+    "css-loader": "*",
+    "vue-html-loader": "*",
+    "vue-style-loader": "*",
     "webpack": "^2.4.1",
     "webpack-dev-server": "^2.4.2"
   }
